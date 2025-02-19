@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,7 +14,7 @@ interface ExtendedFeedback {
   rating: number;
   image_url?: string;
   user_id: string;
-  username: string;
+  username?: string;
   created_at: string;
 }
 
@@ -36,36 +35,41 @@ const AdminPanel = () => {
   }, [isAdmin, navigate]);
 
   const fetchFeedbacks = async () => {
-    const { data, error } = await supabase
-      .from("feedback")
-      .select(`
-        *,
-        profiles:profiles(username)
-      `)
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("feedback")
+        .select(`
+          *,
+          profiles (
+            username
+          )
+        `)
+        .order("created_at", { ascending: false });
 
-    if (error) {
+      if (error) throw error;
+
+      if (data) {
+        setFeedbacks(
+          data.map((item: any) => ({
+            ...item,
+            username: item.profiles?.username || "Anonymous",
+          }))
+        );
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to fetch feedbacks",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    setFeedbacks(
-      data.map((item) => ({
-        ...item,
-        username: item.profiles?.username || "Anonymous",
-      }))
-    );
-    setLoading(false);
   };
 
   const handleDelete = async (id: string, imageUrl?: string) => {
     setDeleting(id);
     try {
-      // Delete image if exists
       if (imageUrl) {
         const imagePath = imageUrl.split("/").pop();
         if (imagePath) {
@@ -75,7 +79,6 @@ const AdminPanel = () => {
         }
       }
 
-      // Delete feedback
       const { error } = await supabase
         .from("feedback")
         .delete()

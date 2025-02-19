@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,9 @@ interface Feedback {
   rating: number;
   image_url?: string;
   user_id: string;
+  profiles?: {
+    username: string | null;
+  };
 }
 
 const Feedback = () => {
@@ -32,37 +34,39 @@ const Feedback = () => {
   }, []);
 
   const fetchFeedbacks = async () => {
-    const { data, error } = await supabase
-      .from("feedback")
-      .select(`
-        id,
-        message,
-        rating,
-        image_url,
-        user_id,
-        profiles:profiles(username)
-      `)
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("feedback")
+        .select(`
+          *,
+          profiles (
+            username
+          )
+        `)
+        .order("created_at", { ascending: false });
 
-    if (error) {
+      if (error) throw error;
+
+      if (data) {
+        setFeedbacks(
+          data.map((item) => ({
+            id: item.id,
+            message: item.message,
+            rating: item.rating || 5,
+            image_url: item.image_url,
+            user_id: item.user_id,
+            name: item.profiles?.username || "Anonymous",
+            profiles: item.profiles,
+          }))
+        );
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
         description: "Failed to fetch feedbacks",
         variant: "destructive",
       });
-      return;
     }
-
-    setFeedbacks(
-      data.map((item) => ({
-        id: item.id,
-        message: item.message,
-        rating: item.rating || 5,
-        image_url: item.image_url,
-        user_id: item.user_id,
-        name: item.profiles?.username || "Anonymous",
-      }))
-    );
   };
 
   const handleImageUpload = async (file: File) => {
