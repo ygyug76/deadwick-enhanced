@@ -1,5 +1,5 @@
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -139,11 +139,16 @@ const Feedback = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto px-4 py-16"
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
         <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
           Feedback
@@ -153,18 +158,23 @@ const Feedback = () => {
         </p>
 
         {!showForm ? (
-          <div className="text-center mb-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
             <Button
               onClick={() => setShowForm(true)}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
               Submit Your Feedback
             </Button>
-          </div>
+          </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             className="max-w-2xl mx-auto mb-12"
           >
             <Card className="p-6 backdrop-blur-sm bg-white/10">
@@ -180,7 +190,12 @@ const Feedback = () => {
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="space-y-2">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="space-y-2"
+                >
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -188,8 +203,13 @@ const Feedback = () => {
                     required
                     className="w-full px-4 py-2 bg-gray-800/50 border border-purple-500/20 rounded-lg focus:outline-none focus:border-purple-500 text-white placeholder-gray-400 min-h-[100px]"
                   />
-                </div>
-                <div className="flex items-center space-x-2">
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center space-x-2"
+                >
                   {[1, 2, 3, 4, 5].map((value) => (
                     <button
                       key={value}
@@ -202,8 +222,13 @@ const Feedback = () => {
                       <Star className="h-6 w-6 fill-current" />
                     </button>
                   ))}
-                </div>
-                <div className="space-y-2">
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="space-y-2"
+                >
                   <div className="flex items-center space-x-2">
                     <Button
                       type="button"
@@ -238,66 +263,76 @@ const Feedback = () => {
                   {image && (
                     <p className="text-sm text-gray-400">{image.name}</p>
                   )}
-                </div>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    "Submit Feedback"
-                  )}
-                </Button>
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Feedback"
+                    )}
+                  </Button>
+                </motion.div>
               </form>
             </Card>
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {feedbacks.map((feedback) => (
-            <motion.div
-              key={feedback.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              whileHover={{ scale: 1.02 }}
-              className="h-full"
-            >
-              <Card className="p-6 backdrop-blur-sm bg-white/10 h-full">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
-                      {feedback.name}
-                    </h3>
-                    <div className="flex">
-                      {Array.from({ length: feedback.rating }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className="h-5 w-5 text-yellow-500 fill-current"
-                        />
-                      ))}
+        <AnimatePresence mode="popLayout">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {feedbacks.map((feedback, index) => (
+              <motion.div
+                key={feedback.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                className="h-full"
+              >
+                <Card className="p-6 backdrop-blur-sm bg-white/10 hover:bg-white/20 transition-all duration-300 h-full">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text">
+                        {feedback.name}
+                      </h3>
+                      <div className="flex">
+                        {Array.from({ length: feedback.rating }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className="h-5 w-5 text-yellow-500 fill-current"
+                          />
+                        ))}
+                      </div>
                     </div>
+                    {feedback.image_url && (
+                      <motion.img
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        src={feedback.image_url}
+                        alt="Feedback"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    )}
+                    <p className="text-gray-300">{feedback.message}</p>
                   </div>
-                  {feedback.image_url && (
-                    <img
-                      src={feedback.image_url}
-                      alt="Feedback"
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                  )}
-                  <p className="text-gray-300">{feedback.message}</p>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatePresence>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 
