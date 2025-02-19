@@ -9,13 +9,13 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
-type SupabaseFeedback = {
+type DatabaseFeedback = {
+  created_at: string;
   id: string;
   message: string;
-  rating: number | null;
-  image_url?: string;
+  rating: number;
   user_id: string;
-  created_at: string;
+  image_url?: string;
   profiles: {
     username: string | null;
   } | null;
@@ -62,7 +62,7 @@ const AdminPanel = () => {
       if (error) throw error;
 
       if (data) {
-        const formattedFeedbacks: ExtendedFeedback[] = (data as SupabaseFeedback[]).map((item) => ({
+        const formattedFeedbacks = data.map((item: any) => ({
           id: item.id,
           message: item.message,
           rating: item.rating || 5,
