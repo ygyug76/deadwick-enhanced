@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+interface Profile {
+  username: string | null;
+}
+
+interface FeedbackData {
+  id: string;
+  message: string;
+  rating: number | null;
+  image_url?: string;
+  user_id: string;
+  created_at: string;
+  profiles: Profile | null;
+}
+
 interface Feedback {
   id: string;
   name: string;
@@ -14,9 +29,6 @@ interface Feedback {
   rating: number;
   image_url?: string;
   user_id: string;
-  profiles?: {
-    username: string | null;
-  };
 }
 
 const Feedback = () => {
@@ -48,17 +60,15 @@ const Feedback = () => {
       if (error) throw error;
 
       if (data) {
-        setFeedbacks(
-          data.map((item) => ({
-            id: item.id,
-            message: item.message,
-            rating: item.rating || 5,
-            image_url: item.image_url,
-            user_id: item.user_id,
-            name: item.profiles?.username || "Anonymous",
-            profiles: item.profiles,
-          }))
-        );
+        const formattedFeedbacks: Feedback[] = data.map((item: FeedbackData) => ({
+          id: item.id,
+          message: item.message,
+          rating: item.rating || 5,
+          image_url: item.image_url,
+          user_id: item.user_id,
+          name: item.profiles?.username || "Anonymous"
+        }));
+        setFeedbacks(formattedFeedbacks);
       }
     } catch (error: any) {
       toast({

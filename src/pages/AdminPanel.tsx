@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,13 +9,27 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 
+interface Profile {
+  username: string | null;
+}
+
+interface FeedbackData {
+  id: string;
+  message: string;
+  rating: number | null;
+  image_url?: string;
+  user_id: string;
+  created_at: string;
+  profiles: Profile | null;
+}
+
 interface ExtendedFeedback {
   id: string;
   message: string;
   rating: number;
   image_url?: string;
   user_id: string;
-  username?: string;
+  username: string;
   created_at: string;
 }
 
@@ -49,12 +64,12 @@ const AdminPanel = () => {
       if (error) throw error;
 
       if (data) {
-        setFeedbacks(
-          data.map((item: any) => ({
-            ...item,
-            username: item.profiles?.username || "Anonymous",
-          }))
-        );
+        const formattedFeedbacks: ExtendedFeedback[] = data.map((item: FeedbackData) => ({
+          ...item,
+          rating: item.rating || 5,
+          username: item.profiles?.username || "Anonymous"
+        }));
+        setFeedbacks(formattedFeedbacks);
       }
     } catch (error: any) {
       toast({
