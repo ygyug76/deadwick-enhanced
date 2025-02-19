@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,18 +7,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Profile {
-  username: string | null;
-}
-
-interface FeedbackData {
+type SupabaseFeedback = {
   id: string;
   message: string;
   rating: number | null;
   image_url?: string;
   user_id: string;
   created_at: string;
-  profiles: Profile | null;
+  profiles: {
+    username: string | null;
+  } | null;
 }
 
 interface Feedback {
@@ -60,7 +57,7 @@ const Feedback = () => {
       if (error) throw error;
 
       if (data) {
-        const formattedFeedbacks: Feedback[] = data.map((item: FeedbackData) => ({
+        const formattedFeedbacks: Feedback[] = (data as SupabaseFeedback[]).map((item) => ({
           id: item.id,
           message: item.message,
           rating: item.rating || 5,
